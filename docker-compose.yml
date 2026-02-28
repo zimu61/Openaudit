@@ -1,0 +1,82 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: openaudit
+      POSTGRES_PASSWORD: openaudit
+      POSTGRES_DB: openaudit
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openaudit"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: openaudit-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - JOERN_CLI_PATH=/opt/joern/joern
+      - JOERN_PARSE_PATH=/opt/joern/joern-parse
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+      - workspaces:/app/workspaces
+      - 你的joern目录:/opt/joern
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-exclude "uploads/*" --reload-exclude "workspaces/*"
+
+  celery:
+    image: openaudit-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - JOERN_CLI_PATH=/opt/joern/joern
+      - JOERN_PARSE_PATH=/opt/joern/joern-parse
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      backend:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+      - uploads:/app/uploads
+      - workspaces:/app/workspaces
+      - 你的joern目录:/opt/joern
+    command: celery -A celery_worker worker --loglevel=info -Q scans --concurrency=2
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads:
+  workspaces:

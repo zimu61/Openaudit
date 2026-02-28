@@ -1,0 +1,28 @@
+# FastAPI
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Database
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.1
+psycopg2-binary==2.9.10
+
+# Celery + Redis
+celery[redis]==5.4.0
+redis==5.2.1
+
+# AI Providers
+openai==1.58.1
+anthropic==0.42.0
+
+# Utilities
+pydantic-settings==2.7.1
+python-dotenv==1.0.1
+aiofiles==24.1.0
+websockets==14.1
+fpdf2==2.8.2
+
+# Dev
+httpx==0.28.1
