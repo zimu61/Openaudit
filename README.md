@@ -50,16 +50,3 @@ An intelligent code security audit platform that combines **Joern** (static anal
 4. **Joern** traces data flows from identified sources to dangerous sinks
 5. **AI** analyzes each flow for real vulnerabilities
 6. **Results** are displayed with severity, confidence, code context, and remediation
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/projects/upload` | Upload code package |
-| GET | `/api/projects` | List all projects |
-| GET | `/api/projects/{id}` | Get project detail |
-| DELETE | `/api/projects/{id}` | Delete project |
-| POST | `/api/projects/{id}/scan` | Start security scan |
-| GET | `/api/scans/{id}` | Get scan status |
-| GET | `/api/scans/{id}/findings` | Get scan findings |
-| WS | `/ws/scans/{id}` | Real-time scan progress |
